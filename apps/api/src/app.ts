@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { providersRouter } from "./routes/providers.js";
+import { lookupsRouter } from "./routes/lookups.js";
 
 export const app = express();
 
@@ -11,4 +11,4 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/providers", providersRouter);
+app.use("/api/lookups", lookupsRouter);

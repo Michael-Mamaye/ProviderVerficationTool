@@ -6,36 +6,29 @@ datasource db {
   provider = "postgresql"
 }
 
-enum VerificationStatus {
-  PENDING
-  VERIFIED
-  FAILED
-  EXPIRED
+enum QueryType {
+  NPI
+  NAME
 }
 
-model Provider {
-  id            String   @id @default(uuid())
-  firstName     String
-  lastName      String
-  npiNumber     String   @unique
-  licenseNumber String
-  licenseState  String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  verifications Verification[]
-
-  @@index([licenseNumber, licenseState])
+enum LookupStatus {
+  SUCCESS
+  NOT_FOUND
+  INVALID_QUERY
+  API_ERROR
 }
 
-model Verification {
-  id         String              @id @default(uuid())
-  providerId String
-  provider   Provider            @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  status     VerificationStatus  @default(PENDING)
-  source     String
-  notes      String?
-  checkedAt  DateTime            @default(now())
+// One row per search a user runs, success or failure. This is the audit
+// trail the challenge asks for: query + timestamp + result, always written.
+model Lookup {
+  id           String       @id @default(uuid())
+  query        String
+  queryType    QueryType
+  status       LookupStatus
+  resultCount  Int          @default(0)
+  results      Json?
+  errorMessage String?
+  createdAt    DateTime     @default(now())
 
-  @@index([providerId])
+  @@index([createdAt])
 }
