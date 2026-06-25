@@ -134,7 +134,7 @@ function LookupResult({ lookup }: { lookup: Lookup }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
-        {lookup.resultCount} match{lookup.resultCount === 1 ? "" : "es"} for
+        {lookup.resultCount} match{lookup.resultCount === 1 ? "" : "es"} for{" "}
         &ldquo;{lookup.query}&rdquo;
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
