@@ -15,6 +15,12 @@ pnpm dev
 
 The API runs on `http://localhost:4000` by default.
 
+## Endpoints
+
+- `GET /health` — liveness check
+- `POST /api/lookups` — body `{ "query": string }`, accepts an NPI number or a provider name, queries the NPPES NPI Registry, persists the lookup (success or failure), and returns the saved record
+- `GET /api/lookups` — the 50 most recent lookups, newest first
+
 ## Scripts
 
 - `pnpm dev` — start the dev server with hot reload
