@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  FAILED
+  EXPIRED
+}
+
+model Provider {
+  id            String   @id @default(uuid())
+  firstName     String
+  lastName      String
+  npiNumber     String   @unique
+  licenseNumber String
+  licenseState  String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  verifications Verification[]
+
+  @@index([licenseNumber, licenseState])
+}
+
+model Verification {
+  id         String              @id @default(uuid())
+  providerId String
+  provider   Provider            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  status     VerificationStatus  @default(PENDING)
+  source     String
+  notes      String?
+  checkedAt  DateTime            @default(now())
+
+  @@index([providerId])
+}
