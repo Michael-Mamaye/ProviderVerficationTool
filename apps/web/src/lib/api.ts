@@ -37,8 +37,13 @@ export async function searchProvider(query: string): Promise<Lookup> {
   return response.json();
 }
 
-export async function getLookupHistory(): Promise<Lookup[]> {
-  const response = await fetch(`${API_URL}/api/lookups`, { cache: "no-store" });
+export async function getLookupHistory(status?: LookupStatus): Promise<Lookup[]> {
+  const url = new URL(`${API_URL}/api/lookups`);
+  if (status) {
+    url.searchParams.set("status", status);
+  }
+
+  const response = await fetch(url, { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error("Could not load lookup history.");

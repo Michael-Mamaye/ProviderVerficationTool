@@ -65,8 +65,19 @@ lookupsRouter.post("/", async (req, res) => {
   res.status(200).json(lookup);
 });
 
-lookupsRouter.get("/", async (_req, res) => {
+const historyQuerySchema = z.object({
+  status: z.enum(["SUCCESS", "NOT_FOUND", "INVALID_QUERY", "API_ERROR"]).optional(),
+});
+
+lookupsRouter.get("/", async (req, res) => {
+  const parsed = historyQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid status filter." });
+    return;
+  }
+
   const lookups = await prisma.lookup.findMany({
+    where: parsed.data.status ? { status: parsed.data.status } : undefined,
     orderBy: { createdAt: "desc" },
     take: 50,
   });

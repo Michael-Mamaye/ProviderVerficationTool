@@ -1,6 +1,8 @@
 import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -27,12 +29,25 @@ const STATUS_VARIANT: Record<LookupStatus, "default" | "secondary" | "destructiv
   API_ERROR: "destructive",
 };
 
-export default async function HistoryPage() {
+const STATUS_FILTERS: LookupStatus[] = ["SUCCESS", "NOT_FOUND", "INVALID_QUERY", "API_ERROR"];
+
+function isLookupStatus(value: string): value is LookupStatus {
+  return (STATUS_FILTERS as string[]).includes(value);
+}
+
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const params = await searchParams;
+  const activeStatus = params.status && isLookupStatus(params.status) ? params.status : undefined;
+
   let lookups: Lookup[] = [];
   let loadError: string | null = null;
 
   try {
-    lookups = await getLookupHistory();
+    lookups = await getLookupHistory(activeStatus);
   } catch {
     loadError = "Could not reach the API. Is the backend running?";
   }
@@ -45,6 +60,26 @@ export default async function HistoryPage() {
           <p className="text-muted-foreground">
             The 50 most recent searches, including failed and invalid ones.
           </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={activeStatus ? "outline" : "default"}
+            size="sm"
+            render={<Link href="/history" />}
+          >
+            All
+          </Button>
+          {STATUS_FILTERS.map((status) => (
+            <Button
+              key={status}
+              variant={activeStatus === status ? "default" : "outline"}
+              size="sm"
+              render={<Link href={`/history?status=${status}`} />}
+            >
+              {STATUS_LABEL[status]}
+            </Button>
+          ))}
         </div>
 
         {loadError && (
